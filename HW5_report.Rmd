@@ -1,0 +1,63 @@
+---
+title: "Homework 5"
+author: "Manasvi Sundar"
+date: "`r format(Sys.Date(), '%Y-%m-%d')`"
+output: html_document
+---
+
+# Introduction 
+## Data used
+In this activity, I have used the HELP dataset (Health Evaluation and Linkage to Primary Care), which is data from a clinical trial for adult inpatients recruited from a detoxification unit. Patients with no primary care physician were randomized to receive a multidisciplinary assessment and a brief motivational intervention or usual care, with the goal of linking them to primary medical care.
+
+## Aim of analysis
+The aim of this analysis is to use linear regression to understand the relationship between Risk Assessment Battery (RAB) drug risk score and our primary exposure, perceived social support, adjusting for age and gender. We then do some regression diagnostics to understand if our model is a good fit.
+
+# Code
+## Loading required packages and data
+(Please refer to install.R to install the required packages for this analysis.)
+
+```{r, load-library, results = FALSE }
+library(dplyr)
+```
+
+```{r, load-data, results = FALSE }
+# loading required data
+helpdata <- read.csv('help.csv')
+mydata <- helpdata %>%
+	select(sexrisk, pss_fr, age, female)
+```
+
+## Linear regression
+```{r, lin-reg, results = TRUE }
+# linear regression
+fit1 <- lm(sexrisk ~ pss_fr, age, female, data = mydata)
+```
+
+## Regression diagnostics
+```{r, diagnostics, results = TRUE }
+par(mfrow=c(2,2))
+plot(fit1)
+par(mfrow=c(1,1))
+summary(fit1)
+
+# histogram of residuals
+hist(fit1$residuals)
+
+# coefficients
+coefficients(fit1)
+
+```
+
+# Conclusion
+
+Distribution of residuals: From the figures (histogram of residuals and Q-Q plot), I would say the residuals are fairly normally distributed. Although they seem to be skewed towards the right tail. 
+
+Linearity: There seems to be no pattern/relationship between the residuals and fitted values. Therefore, there is no violation in the assumptions of linear regression.  
+
+Homoscedasticity: Since the red line drawn is approximately horizontal and the spread of points around the line does not vary with fitted values, the homoscedasticity assumption is satisfied. 
+
+Residuals vs leverage: It does not seem like there are any influential outliers in our dataset. 
+
+Variance: R2 of 0.011 indicates that our model only explains 1.1% of the variation in the sexrisk variable around its mean. The R2 is quite low and we must dig deeper to understand why it is low and what can be done to increase it (eg: removing weak predictors and adding more relevant predictors to the model).
+
+From our estimates, for each additional friend a person has, his/her Risk Assessment Battery (RAB) sex risk score decreases, on average, by 0.32. 
